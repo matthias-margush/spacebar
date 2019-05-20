@@ -1,0 +1,77 @@
+#+TITLE: Spacebar
+Spacebar provides workspaces with an interface similar to vim tabs. Workspaces can display any buffer, but retain their own split layout. Spacebar is a user interface built on [[https://github.com/wasamasa/eyebrowse][eyebrowse]], which manages the workspaces.
+
+[[./spacebar.gif]]
+
+* Installation
+** Emacs-style keybindings
+Emacs keybindings are provided in the =spacebar-command-map= keymap. Bind this keymap to a prefix of your choice:
+
+#+begin_src emacs-lisp
+  (use-package spacebar
+    :bind-keymap ("C-c w" . spacebar-command-map)
+    :config
+    (spacebar-mode))
+#+end_src
+
+| Key     | Action                                                |
+|---------+-------------------------------------------------------|
+| C-c w c | Prompt for a space name and create it or switch to it |
+| C-c w " | Close the current space                               |
+| C-c w ' | Switch to the most recent space                       |
+| C-c w 1 | Switch to space 1                                     |
+| C-c w 2 | Switch to space 2                                     |
+| C-c w 3 | Switch to space 3                                     |
+| C-c w 4 | Switch to space 4                                     |
+| C-c w 5 | Switch to space 5                                     |
+| C-c w 6 | Switch to space 6                                     |
+| C-c w 7 | Switch to space 7                                     |
+| C-c w 8 | Switch to space 8                                     |
+| C-c w 9 | Switch to space 9                                     |
+| C-c w 0 | Switch to space 0                                     |
+| C-c w < | Switch to the space to the left                       |
+| C-c w > | Switch to the space to the right                      |
+| C-c w , | Rename the current space                              |
+
+** Vim-style keybindings
+Call =(spacebar-setup-evil-keys)= to initialize the default evil-mode bindings:
+#+begin_src emacs-lisp
+  (use-package spacebar
+    :after evil
+    :config
+    (spacebar-mode)
+    (spacebar-setup-evil-keys))
+#+end_src
+
+| Key                            | Action                                                |
+|--------------------------------+-------------------------------------------------------|
+| gt, :tabn[ext]                 | Switch to the space to the right                      |
+| gT, :tabp[revious], :tabN[ext] | Switch to the space to the left                       |
+| g`                             | Switch to the most recent space                       |
+| {count}gt                      | Switch to space {count}i                              |
+| :tabr[ewind], :tabf[irst[      | Switch to the first space                             |
+| :tabl[ast]                     | Switch to the last space                              |
+| :tabnew                        | Prompt for a space name and create it or switch to it |
+| :tabc[lose]                    | Close the current space                               |
+
+
+* Integration with other packages
+** Projectile
+To create (or switch to) spaces when switching between projects with projectile, call =(spacebar-projectile-init)=:
+#+begin_src emacs-lisp
+  (use-package spacebar
+    :after projectile
+    :config
+    (spacebar-mode)
+    (spacebar-projectile-init))
+#+end_src
+
+** Deft
+To create a dedicated workspace for [[https://github.com/jrblevin/deft][deft]] notes, bind a key to =spacebar-deft=,
+#+begin_src emacs-lisp
+  (use-package spacebar
+    :after deft
+    :bind ("<f8>" . #'spacebar-deft)
+    :config
+    (spacebar-mode))
+#+end_src
