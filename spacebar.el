@@ -397,17 +397,17 @@ If it does not exist, creates it, switches to it, and initializes it
   "Create a space for each project."
   (if (boundp 'projectile-switch-project-action)
       (progn
-	(when (not (eq 'projectile-switch-project-action
-		       'spacebar-projectile-switch-project-action))
+	(unless (eq 'projectile-switch-project-action
+		    'spacebar-projectile-switch-project-action)
 	  (setq spacebar--original-projectile-switch-project-action
 		projectile-switch-project-action))
 
 	(setq projectile-switch-project-action
-              #'spacebar-projectile-switch-project-action)
+	      #'spacebar-projectile-switch-project-action)
 
 	(with-eval-after-load 'projectile
 	  (defadvice projectile-kill-buffers
-              (after close-projectile-spacebar activate)
+	      (after close-projectile-spacebar activate)
 	    "Close space when projectile project is closed."
 	    (spacebar-close))))
     (message "spacebar: projectile is not installed")))
