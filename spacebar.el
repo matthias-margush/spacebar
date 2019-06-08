@@ -201,7 +201,7 @@ is the index of the space.  LABEL is the text to display."
   (car space))
 
 (defun spacebar--namedp (name)
-  "Return a function that will take a space and check whether its name matches NAME."
+  "Return a function that will take a space and check whether its name is NAME."
   (lambda (space)
     (string= name (spacebar--name space))))
 
