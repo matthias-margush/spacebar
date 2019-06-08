@@ -125,7 +125,6 @@ If FRAME is not provided, refreshes the spacebar on the selected frame."
 						    (or frame (selected-frame))))
       (read-only-mode)
       (let ((inhibit-read-only t)
-            (space-window (get-buffer-window))
             (current-space (eyebrowse--get 'current-slot))
             (spaces (eyebrowse--get 'window-configs)))
 	(erase-buffer)
