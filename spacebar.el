@@ -47,8 +47,7 @@
 
 (defcustom spacebar-keymap-prefix (kbd "C-c C-w")
   "Prefix key for key-bindings."
-  :type 'string
-  :group 'spacebar)
+  :type 'string)
 
 (defvar spacebar-command-map
   (let ((map (make-sparse-keymap)))
@@ -77,25 +76,21 @@
 (defcustom spacebar-active-label-format-string
   "[%s]"
   "Format string applied to the active space label."
-  :group 'spacebar
   :type 'string)
 
 (defcustom spacebar-inactive-label-format-string
   " %s "
   "Format string applied to the inactive space label."
-  :group 'spacebar
   :type 'string)
 
 (defcustom spacebar-deft-space-label
   "notes"
   "Label for space containing deft notes."
-  :group 'spacebar
   :type 'string)
 
 (defcustom spacebar-projectile-switch-project-action
   nil
   "Label for space containing deft notes."
-  :group 'spacebar
   :type 'string)
 
 (defface spacebar-inactive
