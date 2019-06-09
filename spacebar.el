@@ -176,18 +176,18 @@ is the index of the space.  LABEL is the text to display."
     (format spacebar-inactive-label-format-string label)))
 
 ;; Defines a side window for spacebar at the top of the frame
-(setq
- display-buffer-alist
- `(("\\ *spacebar\\*" display-buffer-in-side-window
-    (side . top)
-    (slot . 0)
-    (window-height . 2)
-    (preserve-size . (t .t))
-    (left-margin-width . 0)
-    (right-margin-width . 0)
-    (size-fixed . t)
-    (window-parameters . ((no-other-window . t)
-                          (no-delete-other-windows . t))))))
+(add-to-list
+ 'display-buffer-alist
+ `("\\ *spacebar\\*" display-buffer-in-side-window
+   (side . top)
+   (slot . 0)
+   (window-height . 2)
+   (preserve-size . (t .t))
+   (left-margin-width . 0)
+   (right-margin-width . 0)
+   (size-fixed . t)
+   (window-parameters . ((no-other-window . t)
+			 (no-delete-other-windows . t)))))
 
 (defun spacebar--name (space)
   "Return the name of a SPACE."
