@@ -40,6 +40,9 @@
 
 (require 'eyebrowse)
 
+(declare-function evil-ex-define-cmd "ext:evil-ex.el" '(cmd function) t)
+(declare-function projectile-project-name "ext:projectile.el" nil t)
+
 (defvar spacebar-mode-hook nil)
 
 (defgroup spacebar nil
