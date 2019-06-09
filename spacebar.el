@@ -38,6 +38,8 @@
 
 ;;; variables
 
+(require 'eyebrowse)
+
 (defvar spacebar-mode-hook nil)
 
 (defgroup spacebar nil
@@ -341,7 +343,6 @@ Returns t if already exists."
 (defun spacebar--init ()
   "Initialize spacebar."
   (setq eyebrowse-mode-map nil)
-  (require 'eyebrowse)
   (eyebrowse-mode)
   (setq eyebrowse-mode-line-style 'hide
                    	eyebrowse-wrap-around t)
