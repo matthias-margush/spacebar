@@ -14,24 +14,24 @@ Emacs keybindings are provided in the =spacebar-command-map= keymap. Bind this k
     (spacebar-mode))
 #+end_src
 
-| Key     | Action                                                |
-|---------+-------------------------------------------------------|
-| C-c w c | Prompt for a space name and create it or switch to it |
-| C-c w " | Close the current space                               |
-| C-c w ' | Switch to the most recent space                       |
-| C-c w 1 | Switch to space 1                                     |
-| C-c w 2 | Switch to space 2                                     |
-| C-c w 3 | Switch to space 3                                     |
-| C-c w 4 | Switch to space 4                                     |
-| C-c w 5 | Switch to space 5                                     |
-| C-c w 6 | Switch to space 6                                     |
-| C-c w 7 | Switch to space 7                                     |
-| C-c w 8 | Switch to space 8                                     |
-| C-c w 9 | Switch to space 9                                     |
-| C-c w 0 | Switch to space 0                                     |
-| C-c w < | Switch to the space to the left                       |
-| C-c w > | Switch to the space to the right                      |
-| C-c w , | Rename the current space                              |
+| Key       | Action                                                |
+|-----------+-------------------------------------------------------|
+| C-c C-w c | Prompt for a space name and create it or switch to it |
+| C-c C-w " | Close the current space                               |
+| C-c C-w ' | Switch to the most recent space                       |
+| C-c C-w 1 | Switch to space 1                                     |
+| C-c C-w 2 | Switch to space 2                                     |
+| C-c C-w 3 | Switch to space 3                                     |
+| C-c C-w 4 | Switch to space 4                                     |
+| C-c C-w 5 | Switch to space 5                                     |
+| C-c C-w 6 | Switch to space 6                                     |
+| C-c C-w 7 | Switch to space 7                                     |
+| C-c C-w 8 | Switch to space 8                                     |
+| C-c C-w 9 | Switch to space 9                                     |
+| C-c C-w 0 | Switch to space 0                                     |
+| C-c C-w < | Switch to the space to the left                       |
+| C-c C-w > | Switch to the space to the right                      |
+| C-c C-w , | Rename the current space                              |
 
 ** Vim-style keybindings
 Call =(spacebar-setup-evil-keys)= to initialize the default evil-mode bindings:
@@ -53,7 +53,6 @@ Call =(spacebar-setup-evil-keys)= to initialize the default evil-mode bindings:
 | :tabl[ast]                     | Switch to the last space                              |
 | :tabnew                        | Prompt for a space name and create it or switch to it |
 | :tabc[lose]                    | Close the current space                               |
-
 
 * Integration with other packages
 ** Projectile
