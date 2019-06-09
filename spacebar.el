@@ -113,6 +113,17 @@
   "Face for active spacebar tab."
   :group 'spacebar)
 
+;;;###autoload
+(define-minor-mode spacebar-mode
+  "Toggle 'spacebar mode'.
+
+  This global minor mode provides a tab-like bar for workspaces."
+  :keymap spacebar-command-map
+  :global t
+  (if spacebar-mode
+      (spacebar--init)
+    (spacebar--deinit)))
+
 
 ;;; functions
 
@@ -442,17 +453,6 @@ If it does not exist, creates it, switches to it, and initializes it
 	(evil-ex-define-cmd "tabnew" #'spacebar-open)
 	(evil-ex-define-cmd "tabc[lose]" #'spacebar-close))
     (message "spacebar: evil needs to be installed to use evil keybindings.")))
-
-;;;###autoload
-(define-minor-mode spacebar-mode
-  "Toggle 'spacebar mode'.
-
-  This global minor mode provides a tab-like bar for workspaces."
-  :keymap spacebar-command-map
-  :global t
-  (if spacebar-mode
-      (spacebar--init)
-    (spacebar--deinit)))
 
 ;;;###autoload
 (provide 'spacebar)
