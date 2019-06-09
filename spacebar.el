@@ -416,7 +416,7 @@ If it does not exist, creates it, switches to it, and initializes it
 (defun spacebar-deft ()
   "Open a space with deft."
   (interactive)
-  (if (boundp 'deft)
+  (if (fboundp 'deft)
       (spacebar-open-space spacebar-deft-space-label #'deft)
     (message "spacebar: deft is not installed")))
 
