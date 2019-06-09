@@ -425,8 +425,8 @@ If it does not exist, creates it, switches to it, and initializes it
 ;;;###autoload
 (defun spacebar-setup-evil-keys ()
   "Set up evil key bindings."
-  (if (and spacebar-mode (boundp 'evil-motion-state-map))
-      (progn
+  (if (boundp 'evil-motion-state-map)
+      (when spacebar-mode
 	(define-key evil-motion-state-map (kbd "gt") #'spacebar-switch)
 	(define-key evil-motion-state-map (kbd "gT") #'spacebar-switch-prev)
 	(define-key evil-motion-state-map (kbd "g`") #'eyebrowse-last-window-config)
