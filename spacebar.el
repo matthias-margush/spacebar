@@ -50,26 +50,27 @@
   :type 'string)
 
 (defvar spacebar-command-map
-  (let ((map (make-sparse-keymap)))
-    (message "Adding keys to map: %s" map)
-    (define-key map (kbd "<") #'spacebar-switch-prev)
-    (define-key map (kbd ">") #'spacebar-switch)
-    (define-key map (kbd "'") #'spacebar-switch-last)
-    (define-key map (kbd "\"") #'spacebar-close)
-    (define-key map (kbd ",") #'spacebar-rename)
-    (define-key map (kbd ".") #'spacebar-switch)
-    (define-key map (kbd "0") #'spacebar-switch-0)
-    (define-key map (kbd "1") #'spacebar-switch-1)
-    (define-key map (kbd "2") #'spacebar-switch-2)
-    (define-key map (kbd "3") #'spacebar-switch-3)
-    (define-key map (kbd "4") #'spacebar-switch-4)
-    (define-key map (kbd "5") #'spacebar-switch-5)
-    (define-key map (kbd "6") #'spacebar-switch-6)
-    (define-key map (kbd "7") #'spacebar-switch-7)
-    (define-key map (kbd "8") #'spacebar-switch-8)
-    (define-key map (kbd "9") #'spacebar-switch-9)
-    (define-key map (kbd "c") #'spacebar-open)
-    (define-key map (kbd "C-c") #'spacebar-open)
+  (let ((map (make-sparse-keymap))
+	(prefix-map (make-sparse-keymap)))
+    (define-key prefix-map (kbd "<") #'spacebar-switch-prev)
+    (define-key prefix-map (kbd ">") #'spacebar-switch)
+    (define-key prefix-map (kbd "'") #'spacebar-switch-last)
+    (define-key prefix-map (kbd "\"") #'spacebar-close)
+    (define-key prefix-map (kbd ",") #'spacebar-rename)
+    (define-key prefix-map (kbd ".") #'spacebar-switch)
+    (define-key prefix-map (kbd "0") #'spacebar-switch-0)
+    (define-key prefix-map (kbd "1") #'spacebar-switch-1)
+    (define-key prefix-map (kbd "2") #'spacebar-switch-2)
+    (define-key prefix-map (kbd "3") #'spacebar-switch-3)
+    (define-key prefix-map (kbd "4") #'spacebar-switch-4)
+    (define-key prefix-map (kbd "5") #'spacebar-switch-5)
+    (define-key prefix-map (kbd "6") #'spacebar-switch-6)
+    (define-key prefix-map (kbd "7") #'spacebar-switch-7)
+    (define-key prefix-map (kbd "8") #'spacebar-switch-8)
+    (define-key prefix-map (kbd "9") #'spacebar-switch-9)
+    (define-key prefix-map (kbd "c") #'spacebar-open)
+    (define-key prefix-map (kbd "C-c") #'spacebar-open)
+    (define-key map spacebar-keymap-prefix prefix-map)
     map)
   "Key map for spacebar.")
 
@@ -441,6 +442,7 @@ If it does not exist, creates it, switches to it, and initializes it
   "Toggle 'spacebar mode'.
 
   This global minor mode provides a tab-like bar for workspaces."
+  :keymap spacebar-command-map
   :global t
   (if spacebar-mode
       (spacebar--init)
