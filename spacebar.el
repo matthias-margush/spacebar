@@ -423,7 +423,7 @@ If it does not exist, creates it, switches to it, and initializes it
 ;;;###autoload
 (defun spacebar-setup-evil-keys ()
   "Set up evil key bindings."
-  (if (boundp 'evil-motion-state-map)
+  (if (and spacebar-mode (boundp 'evil-motion-state-map))
       (progn
 	(define-key evil-motion-state-map (kbd "gt") #'spacebar-switch)
 	(define-key evil-motion-state-map (kbd "gT") #'spacebar-switch-prev)
