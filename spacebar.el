@@ -175,8 +175,6 @@ is the index of the space.  LABEL is the text to display."
       (format spacebar-active-label-format-string label)
     (format spacebar-inactive-label-format-string label)))
 
-(setq-default cursor-in-non-selected-windows nil)
-
 ;; Defines a side window for spacebar at the top of the frame
 (setq
  display-buffer-alist
@@ -340,12 +338,17 @@ Returns t if already exists."
     (eyebrowse-mode)
     (spacebar-open spacebar--active-spacebar)))
 
+(defvar spacebar--original-cursor-in-non-selected-windows)
 (defun spacebar--init ()
   "Initialize spacebar."
+
+  (setq spacebar--original-cursor-in-non-selected-windows cursor-in-non-selected-windows)
+  (setq-default cursor-in-non-selected-windows nil)
+
   (setq eyebrowse-mode-map nil)
   (eyebrowse-mode)
   (setq eyebrowse-mode-line-style 'hide
-                   	eyebrowse-wrap-around t)
+	eyebrowse-wrap-around t)
 
   (add-hook 'eyebrowse-post-window-switch-hook #'spacebar--refresh)
   (add-hook 'before-make-frame-hook #'spacebar--before-make-frame)
@@ -353,10 +356,9 @@ Returns t if already exists."
   (dolist (frame (frame-list))
     (spacebar--refresh frame)))
 
-
-
 (defun spacebar--deinit ()
   "Turn off spacebar."
+  (setq cursor-in-non-selected-windows spacebar--original-cursor-in-non-selected-windows)
   ;; note: eyebrowse doesn't provide a way to turn off
   (remove-hook 'eyebrowse-post-window-switch-hook #'spacebar--refresh)
   (remove-hook 'before-make-frame-hook #'spacebar--before-make-frame)
