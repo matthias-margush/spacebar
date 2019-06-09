@@ -116,7 +116,7 @@
 (defun spacebar--active-spacesp ()
   "Check whether there are any active spacebar spaces."
   (seq-remove
-   (lambda (s) (string= "" (spacebar--name s)))
+   (lambda (s) (string-empty-p (spacebar--name s)))
    (eyebrowse--get 'window-configs)))
 
 (defun spacebar--refresh (&optional frame)
