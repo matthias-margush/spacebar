@@ -39,6 +39,7 @@
 ;;; variables
 
 (require 'eyebrowse)
+(require 'seq)
 (require 'subr-x)
 
 (declare-function evil-ex-define-cmd "ext:evil-ex.el" '(cmd function) t)
@@ -127,20 +128,16 @@
 
 
 ;;; functions
-
-(defun spacebar--active-spacesp ()
-  "Check whether there are any active spacebar spaces."
-  (seq-remove
-   (lambda (s) (string-empty-p (spacebar--name s)))
-   (eyebrowse--get 'window-configs)))
+(defun spacebar--buffer-name (&optional frame)
+  "Return the spacebar buffer name for FRAME, or the selected frame."
+  (format " *spacebar* - %s" (or frame (selected-frame))))
 
 (defun spacebar--refresh (&optional frame)
   "Refresh the spacebar on FRAME.
 
 If FRAME is not provided, refreshes the spacebar on the selected frame."
-  (when (and spacebar-mode (spacebar--active-spacesp))
-    (with-current-buffer (get-buffer-create (format " *spacebar* - %s"
-                                                    (or frame (selected-frame))))
+  (when spacebar-mode
+    (with-current-buffer (get-buffer-create (spacebar--buffer-name frame))
       (setq-local window-size-fixed t)
       (read-only-mode)
       (let ((inhibit-read-only t)
@@ -150,34 +147,36 @@ If FRAME is not provided, refreshes the spacebar on the selected frame."
         (save-excursion
           (dolist (space spaces)
             (let* ((activep (= current-space (spacebar--slot space)))
+                   (space-name (spacebar--name space))
                    (label (spacebar--render-plain-text
                            activep
                            (spacebar--slot space)
-                           (spacebar--name space)))
+                           space-name))
                    (click-map (make-sparse-keymap)))
-              (define-key click-map [mouse-2]
-                (lambda ()
-                  (interactive)
-                  (spacebar-switch (spacebar--slot space))))
-              (define-key click-map [follow-link] 'mouse-face)
-              (if activep
+              (when (not (string-empty-p space-name))
+                (define-key click-map [mouse-2]
+                  (lambda ()
+                    (interactive)
+                    (spacebar-switch (spacebar--slot space))))
+                (define-key click-map [follow-link] 'mouse-face)
+                (if activep
+                    (put-text-property 0
+                                       (length label)
+                                       'face 'spacebar-active
+                                       label)
                   (put-text-property 0
                                      (length label)
-                                     'face 'spacebar-active
-                                     label)
+                                     'face 'spacebar-inactive
+                                     label))
                 (put-text-property 0
                                    (length label)
-                                   'face 'spacebar-inactive
-                                   label))
-              (put-text-property 0
-                                 (length label)
-                                 'mouse-face 'default
-                                 label)
-              (put-text-property 0
-                                 (length label)
-                                 'keymap click-map
-                                 label)
-              (insert label))))
+                                   'mouse-face 'default
+                                   label)
+                (put-text-property 0
+                                   (length label)
+                                   'keymap click-map
+                                   label)
+                (insert label)))))
 
         (display-buffer-in-side-window
          (current-buffer)
@@ -345,50 +344,64 @@ Returns t if already exists."
     (eyebrowse-close-window-config)
     (spacebar--refresh)))
 
-(defvar spacebar--active-spacebar)
-
-(defun spacebar--before-make-frame ()
-  "Initialize the spacebar in a new frame with the currently active space from the previous frame."
-  (setq spacebar--active-spacebar (spacebar--name
-                                   (spacebar--current-config))))
-
-(defun spacebar--after-make-frame (frame)
-  "When a FRAME is opened, ensure the spacebar has the currently active space from the previous frame."
-  (with-selected-frame frame
-    ;; eyebrowse needs to be toggled
-    (eyebrowse-mode)
-    (eyebrowse-mode)
-    (spacebar-open spacebar--active-spacebar)))
+(defadvice eyebrowse--fixup-window-config
+    (before spacebar--fixup-window-config (window-config) activate)
+  "Fixup spacebar buffers that were saved and restored across Emacs sessions, and are no longer valid."
+  (eyebrowse--walk-window-config
+   window-config
+   (lambda (item)
+     (when (eq (car item) 'buffer)
+       (let* ((buffer-name (cadr item))
+              (buffer (get-buffer buffer-name)))
+         (when (not buffer)
+           (setf (cadr item) (spacebar--buffer-name))))))))
 
 (defvar spacebar--original-cursor-in-non-selected-windows)
 (defun spacebar--init ()
   "Initialize spacebar."
-
-  (add-hook 'kill-emacs-hook (lambda () (if spacebar-mode (spacebar--deinit))))
   (setq spacebar--original-cursor-in-non-selected-windows cursor-in-non-selected-windows)
   (setq-default cursor-in-non-selected-windows nil)
-
   (setq eyebrowse-mode-map nil)
+  (setq eyebrowse-wrap-around t)
   (eyebrowse-mode)
-  (setq eyebrowse-mode-line-style 'hide
-        eyebrowse-wrap-around t)
 
+  ;; Refresh spacebar view when switching eyebrowse windows
   (add-hook 'eyebrowse-post-window-switch-hook #'spacebar--refresh)
-  (add-hook 'before-make-frame-hook #'spacebar--before-make-frame)
-  (add-to-list 'after-make-frame-functions #'spacebar--after-make-frame)
-  (dolist (frame (frame-list))
-    (spacebar--refresh frame)))
+
+  ;; Refresh spacebar when switching perspectives
+  (add-hook 'persp-activated-functions #'spacebar--activate-persp 1)
+
+  ;; Refresh when reloading perspective
+  (add-hook 'persp-after-load-state-functions #'spacebar--activate 1)
+
+  (spacebar--activate))
 
 (defun spacebar--deinit ()
   "Turn off spacebar."
   (setq cursor-in-non-selected-windows spacebar--original-cursor-in-non-selected-windows)
   ;; note: eyebrowse doesn't provide a way to turn off
   (remove-hook 'eyebrowse-post-window-switch-hook #'spacebar--refresh)
-  (remove-hook 'before-make-frame-hook #'spacebar--before-make-frame)
-  (delete #'spacebar--after-make-frame after-make-frame-functions)
-  (dolist (buffer (buffer-list))
-    (when (string-prefix-p " *spacebar*" (buffer-name buffer))
-      (kill-buffer buffer))))
+  (spacebar--deactivate))
+
+(defun spacebar--activate (&rest _)
+  "Refresh all frames."
+  (dolist (frame (frame-list))
+    (spacebar--refresh frame)))
+
+(defun spacebar--activate-persp (type)
+  "Refresh spacebar for perspective.
+
+When added to the hook PERSP-ACTIVATED-FUNCTIONS, will be called with TYPE eq 'frame or 'window."
+  (when (eq type 'frame)
+    (spacebar--refresh (selected-frame))))
+
+(defun spacebar--deactivate (&rest _)
+  "Remove all spacebar buffers."
+  (message "deactivating spacebar")
+  (dolist (frame (frame-list))
+    (dolist (buffer (buffer-list frame))
+      (when (string-prefix-p " *spacebar*" (buffer-name buffer))
+        (kill-buffer buffer)))))
 
 (defvar evil-motion-state-map)
 
