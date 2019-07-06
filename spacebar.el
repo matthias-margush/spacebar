@@ -179,7 +179,17 @@ If FRAME is not provided, refreshes the spacebar on the selected frame."
                                  label)
               (insert label))))
 
-        (display-buffer (current-buffer))
+        (display-buffer-in-side-window
+         (current-buffer)
+         '((side . top)
+           (slot . 0)
+           (window-height . 2)
+           (preserve-size . (nil .t))
+           (left-margin-width . 0)
+           (right-margin-width . 0)
+           (size-fixed . t)
+           (window-parameters . ((no-other-window . t)
+                                 (no-delete-other-windows . t)))))
         (setq mode-line-format nil)))))
 
 (defun spacebar--render-plain-text (activep _slot label)
@@ -190,20 +200,6 @@ is the index of the space.  LABEL is the text to display."
   (if activep
       (format spacebar-active-label-format-string label)
     (format spacebar-inactive-label-format-string label)))
-
-;; Defines a side window for spacebar at the top of the frame
-(add-to-list
- 'display-buffer-alist
- `("\\ *spacebar\\*" display-buffer-in-side-window
-   (side . top)
-   (slot . 0)
-   (window-height . 2)
-   (preserve-size . (t .t))
-   (left-margin-width . 0)
-   (right-margin-width . 0)
-   (size-fixed . t)
-   (window-parameters . ((no-other-window . t)
-                         (no-delete-other-windows . t)))))
 
 (defun spacebar--name (space)
   "Return the name of a SPACE."
