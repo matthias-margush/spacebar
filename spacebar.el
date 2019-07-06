@@ -57,7 +57,7 @@
 
 (defvar spacebar-command-map
   (let ((map (make-sparse-keymap))
-	(prefix-map (make-sparse-keymap)))
+        (prefix-map (make-sparse-keymap)))
     (define-key prefix-map (kbd "<") #'spacebar-switch-prev)
     (define-key prefix-map (kbd ">") #'spacebar-switch)
     (define-key prefix-map (kbd "'") #'spacebar-switch-last)
@@ -140,46 +140,46 @@
 If FRAME is not provided, refreshes the spacebar on the selected frame."
   (when (and spacebar-mode (spacebar--active-spacesp))
     (with-current-buffer (get-buffer-create (format " *spacebar* - %s"
-						    (or frame (selected-frame))))
+                                                    (or frame (selected-frame))))
       (read-only-mode)
       (let ((inhibit-read-only t)
             (current-space (eyebrowse--get 'current-slot))
             (spaces (eyebrowse--get 'window-configs)))
-	(erase-buffer)
-	(save-excursion
-	  (dolist (space spaces)
-	    (let* ((activep (= current-space (spacebar--slot space)))
-		   (label (spacebar--render-plain-text
-			   activep
-			   (spacebar--slot space)
-			   (spacebar--name space)))
-		   (click-map (make-sparse-keymap)))
-	      (define-key click-map [mouse-2]
-		(lambda ()
-		  (interactive)
-		  (spacebar-switch (spacebar--slot space))))
-	      (define-key click-map [follow-link] 'mouse-face)
-	      (if activep
-		  (put-text-property 0
-				     (length label)
-				     'face 'spacebar-active
-				     label)
-		(put-text-property 0
-				   (length label)
-				   'face 'spacebar-inactive
-				   label))
-	      (put-text-property 0
-				 (length label)
-				 'mouse-face 'default
-				 label)
-	      (put-text-property 0
-				 (length label)
-				 'keymap click-map
-				 label)
-	      (insert label))))
+        (erase-buffer)
+        (save-excursion
+          (dolist (space spaces)
+            (let* ((activep (= current-space (spacebar--slot space)))
+                   (label (spacebar--render-plain-text
+                           activep
+                           (spacebar--slot space)
+                           (spacebar--name space)))
+                   (click-map (make-sparse-keymap)))
+              (define-key click-map [mouse-2]
+                (lambda ()
+                  (interactive)
+                  (spacebar-switch (spacebar--slot space))))
+              (define-key click-map [follow-link] 'mouse-face)
+              (if activep
+                  (put-text-property 0
+                                     (length label)
+                                     'face 'spacebar-active
+                                     label)
+                (put-text-property 0
+                                   (length label)
+                                   'face 'spacebar-inactive
+                                   label))
+              (put-text-property 0
+                                 (length label)
+                                 'mouse-face 'default
+                                 label)
+              (put-text-property 0
+                                 (length label)
+                                 'keymap click-map
+                                 label)
+              (insert label))))
 
-	(display-buffer (current-buffer))
-	(setq mode-line-format nil)))))
+        (display-buffer (current-buffer))
+        (setq mode-line-format nil)))))
 
 (defun spacebar--render-plain-text (activep _slot label)
   "Renders a tab label as plain text.
@@ -202,7 +202,7 @@ is the index of the space.  LABEL is the text to display."
    (right-margin-width . 0)
    (size-fixed . t)
    (window-parameters . ((no-other-window . t)
-			 (no-delete-other-windows . t)))))
+                         (no-delete-other-windows . t)))))
 
 (defun spacebar--name (space)
   "Return the name of a SPACE."
@@ -228,7 +228,7 @@ is the index of the space.  LABEL is the text to display."
 (defun spacebar--current-config ()
   "Get the active eyebrowse configuration."
   (assoc (eyebrowse--get 'current-slot)
-     (eyebrowse--get 'window-configs)))
+         (eyebrowse--get 'window-configs)))
 
 (defun spacebar-rename ()
   "Rename the active space."
@@ -252,15 +252,15 @@ Returns t if already exists."
       (message "Spacebar mode is not enabled. M-x spacebar-mode to turn it on.")
     (if (or (not space) (numberp space))
         (if space
-	          (if (< space 0)
-	              (eyebrowse-prev-window-config nil)
-	            (eyebrowse-switch-to-window-config
-	             (spacebar--slot (nth (1- space) (eyebrowse--get 'window-configs)))))
-	        (eyebrowse-next-window-config nil))
+            (if (< space 0)
+                (eyebrowse-prev-window-config nil)
+              (eyebrowse-switch-to-window-config
+               (spacebar--slot (nth (1- space) (eyebrowse--get 'window-configs)))))
+          (eyebrowse-next-window-config nil))
       (let ((space (spacebar--slot (spacebar--named space))))
         (when space
-	        (eyebrowse-switch-to-window-config space)
-	        (eyebrowse--get 'current-slot))))))
+          (eyebrowse-switch-to-window-config space)
+          (eyebrowse--get 'current-slot))))))
 
 (defun spacebar-switch-prev ()
   "Switch to previous workspace."
@@ -328,17 +328,17 @@ Returns t if already exists."
   "Open a new workspace with NAME."
   (interactive)
   (if (not spacebar-mode)
-          (message "Spacebar mode is not enabled. M-x spacebar-mode to turn it on.")
-      (let* ((name (or name (completing-read "Workspace: "
-                                             (seq-map #'spacebar--name
-                                                      (eyebrowse--get 'window-configs)))))
-             (existsp (spacebar-switch name)))
-        (unless existsp
-          (unless (string= "" (spacebar--name (spacebar--current-config)))
-	          (eyebrowse-create-window-config))
-          (eyebrowse-rename-window-config (eyebrowse--get 'current-slot) name)
-          (spacebar--refresh))
-        existsp)))
+      (message "Spacebar mode is not enabled. M-x spacebar-mode to turn it on.")
+    (let* ((name (or name (completing-read "Workspace: "
+                                           (seq-map #'spacebar--name
+                                                    (eyebrowse--get 'window-configs)))))
+           (existsp (spacebar-switch name)))
+      (unless existsp
+        (unless (string= "" (spacebar--name (spacebar--current-config)))
+          (eyebrowse-create-window-config))
+        (eyebrowse-rename-window-config (eyebrowse--get 'current-slot) name)
+        (spacebar--refresh))
+      existsp)))
 
 (defun spacebar-close ()
   "Close the active space."
@@ -367,13 +367,14 @@ Returns t if already exists."
 (defun spacebar--init ()
   "Initialize spacebar."
 
+  (add-hook 'kill-emacs-hook (lambda () (if spacebar-mode (spacebar--deinit))))
   (setq spacebar--original-cursor-in-non-selected-windows cursor-in-non-selected-windows)
   (setq-default cursor-in-non-selected-windows nil)
 
   (setq eyebrowse-mode-map nil)
   (eyebrowse-mode)
   (setq eyebrowse-mode-line-style 'hide
-	eyebrowse-wrap-around t)
+        eyebrowse-wrap-around t)
 
   (add-hook 'eyebrowse-post-window-switch-hook #'spacebar--refresh)
   (add-hook 'before-make-frame-hook #'spacebar--before-make-frame)
@@ -405,7 +406,7 @@ If it does not exist, creates it, switches to it, and initializes it
     (funcall init-function)))
 
 (defun spacebar-open-space (name init-function)
-  "If a space with NAME exists, switch to it and call INIT-FUNCTIONS.
+  "If a space with NAME exists, switch to it and call INIT-FUNCTION.
 
 If it does not exist, creates it, switches to it, and initializes it
   with INIT-FUNCTION.  INIT-FUNCTION can be any function that takes no
@@ -419,25 +420,25 @@ If it does not exist, creates it, switches to it, and initializes it
 (defun spacebar-projectile-switch-project-action ()
   "Opens a space when opening a project."
   (spacebar-ensure-space (projectile-project-name)
-             spacebar--original-projectile-switch-project-action))
+                         spacebar--original-projectile-switch-project-action))
 
 (defun spacebar-projectile-init ()
   "Create a space for each project."
   (if (boundp 'projectile-switch-project-action)
       (progn
-	(unless (eq 'projectile-switch-project-action
-		    'spacebar-projectile-switch-project-action)
-	  (setq spacebar--original-projectile-switch-project-action
-		projectile-switch-project-action))
+        (unless (eq 'projectile-switch-project-action
+                    'spacebar-projectile-switch-project-action)
+          (setq spacebar--original-projectile-switch-project-action
+                projectile-switch-project-action))
 
-	(setq projectile-switch-project-action
-	      #'spacebar-projectile-switch-project-action)
+        (setq projectile-switch-project-action
+              #'spacebar-projectile-switch-project-action)
 
-	(with-eval-after-load 'projectile
-	  (defadvice projectile-kill-buffers
-	      (after close-projectile-spacebar activate)
-	    "Close space when projectile project is closed."
-	    (spacebar-close))))
+        (with-eval-after-load 'projectile
+          (defadvice projectile-kill-buffers
+              (after close-projectile-spacebar activate)
+            "Close space when projectile project is closed."
+            (spacebar-close))))
     (message "spacebar: projectile is not installed")))
 
 (defun spacebar-deft ()
@@ -454,17 +455,17 @@ If it does not exist, creates it, switches to it, and initializes it
   "Set up evil key bindings."
   (if (boundp 'evil-motion-state-map)
       (when spacebar-mode
-	(define-key evil-motion-state-map (kbd "gt") #'spacebar-switch)
-	(define-key evil-motion-state-map (kbd "gT") #'spacebar-switch-prev)
-	(define-key evil-motion-state-map (kbd "g`") #'eyebrowse-last-window-config)
-	(evil-ex-define-cmd "tabn[ext]" #'spacebar-switch)
-	(evil-ex-define-cmd "tabp[revious]" #'spacebar-switch-prev)
-	(evil-ex-define-cmd "tabN[ext]" #'spacebar-switch-prev)
-	(evil-ex-define-cmd "tabr[ewind]" (lambda () (interactive) (spacebar-switch 1)))
-	(evil-ex-define-cmd "tabf[irst]" (lambda () (interactive) (spacebar-switch 1)))
-	(evil-ex-define-cmd "tabl[ast]" (lambda () (interactive) (spacebar-switch 1) (spacebar-switch-prev)))
-	(evil-ex-define-cmd "tabnew" #'spacebar-open)
-	(evil-ex-define-cmd "tabc[lose]" #'spacebar-close))
+        (define-key evil-motion-state-map (kbd "gt") #'spacebar-switch)
+        (define-key evil-motion-state-map (kbd "gT") #'spacebar-switch-prev)
+        (define-key evil-motion-state-map (kbd "g`") #'eyebrowse-last-window-config)
+        (evil-ex-define-cmd "tabn[ext]" #'spacebar-switch)
+        (evil-ex-define-cmd "tabp[revious]" #'spacebar-switch-prev)
+        (evil-ex-define-cmd "tabN[ext]" #'spacebar-switch-prev)
+        (evil-ex-define-cmd "tabr[ewind]" (lambda () (interactive) (spacebar-switch 1)))
+        (evil-ex-define-cmd "tabf[irst]" (lambda () (interactive) (spacebar-switch 1)))
+        (evil-ex-define-cmd "tabl[ast]" (lambda () (interactive) (spacebar-switch 1) (spacebar-switch-prev)))
+        (evil-ex-define-cmd "tabnew" #'spacebar-open)
+        (evil-ex-define-cmd "tabc[lose]" #'spacebar-close))
     (message "spacebar: evil needs to be installed to use evil keybindings.")))
 
 ;;;###autoload
