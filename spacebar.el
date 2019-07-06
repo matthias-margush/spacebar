@@ -39,6 +39,7 @@
 ;;; variables
 
 (require 'eyebrowse)
+(require 'subr-x)
 
 (declare-function evil-ex-define-cmd "ext:evil-ex.el" '(cmd function) t)
 (declare-function projectile-project-name "ext:projectile.el" nil t)
@@ -232,11 +233,13 @@ is the index of the space.  LABEL is the text to display."
 (defun spacebar-rename ()
   "Rename the active space."
   (interactive)
-  (let* ((space (spacebar--current-config))
-         (name (read-string "Rename space: " (spacebar--name space))))
-    (message "renaming to: %s" name)
-    (eyebrowse-rename-window-config (spacebar--slot space) name)
-    (spacebar--refresh)))
+  (if (not spacebar-mode)
+      (message "Spacebar mode is not enabled. M-x spacebar-mode to turn it on.")
+    (let* ((space (spacebar--current-config))
+           (name (read-string "Rename space: " (spacebar--name space))))
+      (message "renaming to: %s" name)
+      (eyebrowse-rename-window-config (spacebar--slot space) name)
+      (spacebar--refresh))))
 
 (defun spacebar-switch (space)
   "Switch to a space.
@@ -245,17 +248,19 @@ SPACE can be a slot number or name.
 
 Returns t if already exists."
   (interactive "P")
-  (if (or (not space) (numberp space))
-      (if space
-	  (if (< space 0)
-	      (eyebrowse-prev-window-config nil)
-	    (eyebrowse-switch-to-window-config
-	     (spacebar--slot (nth (1- space) (eyebrowse--get 'window-configs)))))
-	(eyebrowse-next-window-config nil))
-    (let ((space (spacebar--slot (spacebar--named space))))
-      (when space
-	(eyebrowse-switch-to-window-config space)
-	(eyebrowse--get 'current-slot)))))
+  (if (not spacebar-mode)
+      (message "Spacebar mode is not enabled. M-x spacebar-mode to turn it on.")
+    (if (or (not space) (numberp space))
+        (if space
+	          (if (< space 0)
+	              (eyebrowse-prev-window-config nil)
+	            (eyebrowse-switch-to-window-config
+	             (spacebar--slot (nth (1- space) (eyebrowse--get 'window-configs)))))
+	        (eyebrowse-next-window-config nil))
+      (let ((space (spacebar--slot (spacebar--named space))))
+        (when space
+	        (eyebrowse-switch-to-window-config space)
+	        (eyebrowse--get 'current-slot))))))
 
 (defun spacebar-switch-prev ()
   "Switch to previous workspace."
@@ -265,7 +270,9 @@ Returns t if already exists."
 (defun spacebar-switch-last ()
   "Switch to the last workspace."
   (interactive)
-  (eyebrowse-last-window-config))
+  (if (not spacebar-mode)
+      (message "Spacebar mode is not enabled. M-x spacebar-mode to turn it on.")
+    (eyebrowse-last-window-config)))
 
 (defun spacebar-switch-0 ()
   "Switch to window configuration 0."
@@ -320,22 +327,26 @@ Returns t if already exists."
 (defun spacebar-open (&optional name)
   "Open a new workspace with NAME."
   (interactive)
-  (let* ((name (or name (completing-read "Workspace: "
-                         (seq-map #'spacebar--name
-                                      (eyebrowse--get 'window-configs)))))
-         (existsp (spacebar-switch name)))
-    (unless existsp
-      (unless (string= "" (spacebar--name (spacebar--current-config)))
-	(eyebrowse-create-window-config))
-      (eyebrowse-rename-window-config (eyebrowse--get 'current-slot) name)
-      (spacebar--refresh))
-    existsp))
+  (if (not spacebar-mode)
+          (message "Spacebar mode is not enabled. M-x spacebar-mode to turn it on.")
+      (let* ((name (or name (completing-read "Workspace: "
+                                             (seq-map #'spacebar--name
+                                                      (eyebrowse--get 'window-configs)))))
+             (existsp (spacebar-switch name)))
+        (unless existsp
+          (unless (string= "" (spacebar--name (spacebar--current-config)))
+	          (eyebrowse-create-window-config))
+          (eyebrowse-rename-window-config (eyebrowse--get 'current-slot) name)
+          (spacebar--refresh))
+        existsp)))
 
 (defun spacebar-close ()
   "Close the active space."
   (interactive)
-  (eyebrowse-close-window-config)
-  (spacebar--refresh))
+  (if (not spacebar-mode)
+      (message "Spacebar mode is not enabled. M-x spacebar-mode to turn it on.")
+    (eyebrowse-close-window-config)
+    (spacebar--refresh)))
 
 (defvar spacebar--active-spacebar)
 
@@ -432,9 +443,11 @@ If it does not exist, creates it, switches to it, and initializes it
 (defun spacebar-deft ()
   "Open a space with deft."
   (interactive)
-  (if (fboundp 'deft)
-      (spacebar-open-space spacebar-deft-space-label #'deft)
-    (message "spacebar: deft is not installed")))
+  (if (not spacebar-mode)
+      (message "Spacebar mode is not enabled. M-x spacebar-mode to turn it on.")
+    (if (fboundp 'deft)
+        (spacebar-open-space spacebar-deft-space-label #'deft)
+      (message "spacebar: deft is not installed"))))
 
 ;;;###autoload
 (defun spacebar-setup-evil-keys ()
