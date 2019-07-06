@@ -141,6 +141,7 @@ If FRAME is not provided, refreshes the spacebar on the selected frame."
   (when (and spacebar-mode (spacebar--active-spacesp))
     (with-current-buffer (get-buffer-create (format " *spacebar* - %s"
                                                     (or frame (selected-frame))))
+      (setq-local window-size-fixed t)
       (read-only-mode)
       (let ((inhibit-read-only t)
             (current-space (eyebrowse--get 'current-slot))
