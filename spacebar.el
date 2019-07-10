@@ -4,7 +4,7 @@
 
 ;; Author: Matthias Margush <matthias.margush@gmail.com>
 ;; URL: https://github.com/matthias-margush/spacebar
-;; Version: 0.0.1
+;; Version: 0.0.2
 ;; Package-Requires: ((eyebrowse "0.7.7") (emacs "25.4.0"))
 ;; Keywords: convenience
 
