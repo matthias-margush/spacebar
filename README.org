@@ -1,3 +1,5 @@
+[[https://melpa.org/#/spacebar][file:https://melpa.org/packages/spacebar-badge.svg]]
+
 #+TITLE: Spacebar
 Spacebar provides workspaces with an interface similar to vim tabs. Workspaces can display any buffer, but retain their own split layout. Spacebar is a user interface built on [[https://github.com/wasamasa/eyebrowse][eyebrowse]], which manages the workspaces.
 
