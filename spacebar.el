@@ -138,6 +138,7 @@
 If FRAME is not provided, refreshes the spacebar on the selected frame."
   (when spacebar-mode
     (with-current-buffer (get-buffer-create (spacebar--buffer-name frame))
+      (add-hook 'window-size-change-functions #'spacebar--window-size-changed 0 t)
       (setq-local window-size-fixed t)
       (read-only-mode)
       (let ((inhibit-read-only t)
@@ -190,6 +191,13 @@ If FRAME is not provided, refreshes the spacebar on the selected frame."
            (window-parameters . ((no-other-window . t)
                                  (no-delete-other-windows . t)))))
         (setq mode-line-format nil)))))
+
+(defun spacebar--window-size-changed (window)
+  "Keep spacebar WINDOW the same size."
+  (let ((before (window-pixel-height-before-size-change window))
+        (after (window-pixel-height window)))
+    (when (and (< 0 before) (< before after))
+      (window-resize window (- before after) nil t t))))
 
 (defun spacebar--render-plain-text (activep _slot label)
   "Renders a tab label as plain text.
@@ -446,7 +454,7 @@ If it does not exist, creates it, switches to it, and initializes it
 
         (with-eval-after-load 'projectile
           (defadvice projectile-kill-buffers
-              (after close-projectile-spacebar activate)
+              (before close-projectile-spacebar activate)
             "Close space when projectile project is closed."
             (spacebar-close))))
     (message "spacebar: projectile is not installed")))
