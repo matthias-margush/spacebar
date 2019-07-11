@@ -138,7 +138,9 @@
 If FRAME is not provided, refreshes the spacebar on the selected frame."
   (when spacebar-mode
     (with-current-buffer (get-buffer-create (spacebar--buffer-name frame))
-      (add-hook 'window-size-change-functions #'spacebar--window-size-changed 0 t)
+      ;; Fix up side window resizes
+      (add-hook 'window-size-change-functions #'spacebar--window-size-changed)
+      (set-frame-parameter nil 'spacebar--buffer (current-buffer))
       (setq-local window-size-fixed t)
       (read-only-mode)
       (let ((inhibit-read-only t)
@@ -192,12 +194,16 @@ If FRAME is not provided, refreshes the spacebar on the selected frame."
                                  (no-delete-other-windows . t)))))
         (setq mode-line-format nil)))))
 
-(defun spacebar--window-size-changed (window)
-  "Keep spacebar WINDOW the same size."
-  (let ((before (window-pixel-height-before-size-change window))
-        (after (window-pixel-height window)))
-    (when (and (< 0 before) (< before after))
-      (window-resize window (- before after) nil t t))))
+(defun spacebar--window-size-changed (frame)
+  "Keep spacebar window the same size on FRAME size change."
+  (when-let ((buffer (frame-parameter frame 'spacebar--buffer))
+             (window (get-buffer-window buffer)))
+    (let* ((before (window-pixel-height-before-size-change window))
+           (after (window-pixel-height window)))
+      (when (not (frame-parameter frame 'spacebar--side-window-height))
+        (set-frame-parameter frame 'spacebar--side-window-height after))
+      (when-let ((height (frame-parameter frame 'spacebar--side-window-height)))
+        (window-resize window (- height after) nil t t)))))
 
 (defun spacebar--render-plain-text (activep _slot label)
   "Renders a tab label as plain text.
