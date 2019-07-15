@@ -91,6 +91,11 @@
   "Format string applied to the inactive space label."
   :type 'string)
 
+(defcustom spacebar-perspective-label-format-string
+  "⊣ %s ⊢ "
+  "Format string applied to the perspective label."
+  :type 'string)
+
 (defcustom spacebar-deft-space-label
   "notes"
   "Label for space containing deft notes."
@@ -115,6 +120,11 @@
   "Face for active spacebar tab."
   :group 'spacebar)
 
+(defface spacebar-persp
+  '((t :inherit font-lock-keyword-face :weight normal :height 1.0))
+  "Face for perspective."
+  :group 'spacebar)
+
 ;;;###autoload
 (define-minor-mode spacebar-mode
   "Toggle 'spacebar mode'.
@@ -132,12 +142,20 @@
   "Return the spacebar buffer name for FRAME, or the selected frame."
   (format " *spacebar* - %s" (or frame (selected-frame))))
 
+(defun spacebar--perspective ()
+  "Get the perspective name."
+  (when (and (fboundp 'get-current-persp) (fboundp 'safe-persp-name))
+    (format spacebar-perspective-label-format-string
+            (safe-persp-name (get-current-persp)))))
+
+(defvar spacebar--buffers nil "List of active spacebars.")
 (defun spacebar--refresh (&optional frame)
   "Refresh the spacebar on FRAME.
 
 If FRAME is not provided, refreshes the spacebar on the selected frame."
   (when spacebar-mode
     (with-current-buffer (get-buffer-create (spacebar--buffer-name frame))
+      (add-to-list 'spacebar--buffers (current-buffer))
       ;; Fix up side window resizes
       (add-hook 'window-size-change-functions #'spacebar--window-size-changed)
       (set-frame-parameter nil 'spacebar--buffer (current-buffer))
@@ -148,6 +166,13 @@ If FRAME is not provided, refreshes the spacebar on the selected frame."
             (spaces (eyebrowse--get 'window-configs)))
         (erase-buffer)
         (save-excursion
+          (when-let ((persp (spacebar--perspective)))
+            (put-text-property 0
+                               (length persp)
+                               'face 'spacebar-persp
+                               persp)
+
+            (insert persp))
           (dolist (space spaces)
             (let* ((activep (= current-space (spacebar--slot space)))
                    (space-name (spacebar--name space))
@@ -358,17 +383,10 @@ Returns t if already exists."
     (eyebrowse-close-window-config)
     (spacebar--refresh)))
 
-(defadvice eyebrowse--fixup-window-config
-    (before spacebar--fixup-window-config (window-config) activate)
-  "Fixup spacebar buffers that were saved and restored across Emacs sessions, and are no longer valid."
-  (eyebrowse--walk-window-config
-   window-config
-   (lambda (item)
-     (when (eq (car item) 'buffer)
-       (let* ((buffer-name (cadr item))
-              (buffer (get-buffer buffer-name)))
-         (when (not buffer)
-           (setf (cadr item) (spacebar--buffer-name))))))))
+(defadvice persp-save-state-to-file
+    (before spacebar--before-persp-save-state-to-file activate)
+  "Disable spacebar before trying to save perspective."
+  (spacebar-mode -1))
 
 (defvar spacebar--original-cursor-in-non-selected-windows)
 (defun spacebar--init ()
@@ -411,11 +429,8 @@ When added to the hook PERSP-ACTIVATED-FUNCTIONS, will be called with TYPE eq 'f
 
 (defun spacebar--deactivate (&rest _)
   "Remove all spacebar buffers."
-  (message "deactivating spacebar")
-  (dolist (frame (frame-list))
-    (dolist (buffer (buffer-list frame))
-      (when (string-prefix-p " *spacebar*" (buffer-name buffer))
-        (kill-buffer buffer)))))
+  (dolist (buffer spacebar--buffers)
+    (kill-buffer buffer)))
 
 (defvar evil-motion-state-map)
 
