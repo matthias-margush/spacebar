@@ -101,6 +101,11 @@
   "Label for space containing deft notes."
   :type 'string)
 
+(defcustom spacebar-window-height
+  2
+  "Spacebar top windows height expressed in lines."
+  :type 'integer)
+
 (defface spacebar-inactive
   '((t
      :inherit font-lock-keyword-face
@@ -183,10 +188,10 @@ If FRAME is not provided, refreshes the spacebar on the selected frame."
 
         (display-buffer-in-side-window
          (current-buffer)
-         '((side . top)
+         `((side . top)
            (slot . 0)
-           (window-height . 2)
-           (preserve-size . (nil .t))
+           (window-height . ,spacebar-window-height)
+           (preserve-size . (nil . t))
            (left-margin-width . 0)
            (right-margin-width . 0)
            (size-fixed . t)
