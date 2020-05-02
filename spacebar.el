@@ -4,7 +4,7 @@
 
 ;; Author: Matthias Margush <matthias.margush@gmail.com>
 ;; URL: https://github.com/matthias-margush/spacebar
-;; Version: 0.0.2
+;; Version: 0.0.3
 ;; Package-Requires: ((eyebrowse "0.7.7") (emacs "25.4.0"))
 ;; Keywords: convenience
 
@@ -468,22 +468,20 @@ If it does not exist, creates it, switches to it, and initializes it
 
 (defun spacebar-projectile-init ()
   "Create a space for each project."
-  (if (boundp 'projectile-switch-project-action)
-      (progn
-        (unless (eq 'projectile-switch-project-action
-                    'spacebar-projectile-switch-project-action)
-          (setq spacebar--original-projectile-switch-project-action
-                projectile-switch-project-action))
+  (add-hook 'projectile-mode-hook
+	    (lambda ()
+	      (unless (eq 'projectile-switch-project-action
+			  'spacebar-projectile-switch-project-action)
+		(setq spacebar--original-projectile-switch-project-action
+		      projectile-switch-project-action))
+	      (setq projectile-switch-project-action
+		    #'spacebar-projectile-switch-project-action)))
 
-        (setq projectile-switch-project-action
-              #'spacebar-projectile-switch-project-action)
-
-        (with-eval-after-load 'projectile
-          (defadvice projectile-kill-buffers
-              (before close-projectile-spacebar activate)
-            "Close space when projectile project is closed."
-            (spacebar-close))))
-    (message "spacebar: projectile is not installed")))
+  (with-eval-after-load 'projectile
+    (defadvice projectile-kill-buffers
+	(before close-projectile-spacebar activate)
+      "Close space when projectile project is closed."
+      (spacebar-close))))
 
 (defun spacebar-deft ()
   "Open a space with deft."
